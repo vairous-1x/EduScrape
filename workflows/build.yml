@@ -1,0 +1,36 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-windows:
+    name: Build windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10.4"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+           install -r requpipirements.txt -U
+          pip install pyinstaller -U
+
+      - name: Build GUI
+        run: pyinstaller -y -F -w -i "EduScrape.ico"  --clean --name "EduScrape" --add-data "base.py;." --add-data "colors.py;." --add-data "README.md;." --add-data "LICENSE;."  "gui.py"
+
+      - name: Upload GUI.exe
+        uses: actions/upload-artifact@v3
+        with:
+          name: EduScrape-GUI-windows.exe
+          path: ./dist/EduScrape-GUI-windows.exe
+      - name: Upload EduScrape
+        uses: actions/upload-artifact@v3
+        with:
+          name: EduScrape-windows
+          path: ./dist/
